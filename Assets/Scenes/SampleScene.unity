@@ -135,8 +135,8 @@ GameObject:
   - component: {fileID: 267539548}
   - component: {fileID: 267539550}
   m_Layer: 3
-  m_Name: floor
-  m_TagString: Ground
+  m_Name: Floor
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -474,9 +474,10 @@ GameObject:
   - component: {fileID: 949915614}
   - component: {fileID: 949915613}
   - component: {fileID: 949915615}
+  - component: {fileID: 949915618}
   - component: {fileID: 949915617}
   - component: {fileID: 949915616}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -543,7 +544,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 949915611}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.3, y: -2.477, z: 0}
+  m_LocalPosition: {x: 1.5, y: -2.54, z: 0}
   m_LocalScale: {x: 3.15, y: 3.225, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -562,21 +563,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f839a194b7a5d7248815aca14ab887b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controller: {fileID: 0}
   rb: {fileID: 0}
   collider: {fileID: 0}
-  xVelocity: 0
-  yVelocity: 0
   xInput: 0
   yInput: 0
-  isGrounded: 0
-  velocityRef: {x: 0, y: 0}
-  acceleration: 0.1
-  jumpHeight: 30
-  maxSpeed: 30
-  jumpMaxSpeed: 40
-  groundDrag: 0.5
-  airDrag: 2
-  gravity: 0
 --- !u!61 &949915616
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -618,9 +609,36 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 20
+  m_GravityScale: 4
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &949915618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949915611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf533ee05c3943e41b4320981bb366b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boxCollider: {fileID: 0}
+  xVelocity: 0
+  yVelocity: 0
+  isGrounded: 0
+  velocityRef: {x: 0, y: 0}
+  acceleration: 2
+  jumpHeight: 20
+  maxSpeed: 40
+  jumpMaxSpeed: 70
+  groundDrag: 4
+  airDrag: 2
+  gravity: 1
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8

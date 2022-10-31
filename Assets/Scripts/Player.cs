@@ -7,32 +7,6 @@ public class PlayerState
 {
     public virtual void handleInput(Player thisObj) { }
 
-    public virtual void calculateMovement(Player thisObj)
-    {
-        thisObj.xVelocity = Mathf.Clamp(thisObj.xVelocity + (thisObj.xInput * thisObj.acceleration), -thisObj.maxSpeed, thisObj.maxSpeed);
-        if (thisObj.xInput == 0.0f || thisObj.xInput * thisObj.xVelocity < 0)
-        {
-            if (thisObj.xVelocity > 0.0f)
-            {
-                thisObj.xVelocity = Mathf.Clamp(thisObj.xVelocity - thisObj.groundDrag, 0.0f, thisObj.maxSpeed);
-            }
-
-            else
-            {
-                thisObj.xVelocity = Mathf.Clamp(thisObj.xVelocity + thisObj.groundDrag, -thisObj.maxSpeed, 0.0f);
-            }
-        }
-
-        if (thisObj.isGrounded && thisObj.yInput == 1.0f)
-        {
-            thisObj.rb.AddForce(new Vector2(0, thisObj.jumpHeight));
-        }
-        thisObj.yVelocity = Mathf.Clamp(thisObj.rb.velocity.y, -thisObj.jumpMaxSpeed, thisObj.jumpMaxSpeed);
-
-        Vector2 newVelocity = new Vector2(thisObj.xVelocity, thisObj.yVelocity);
-        thisObj.rb.velocity = newVelocity;
-    }
-
     public virtual void report(Player thisObj) { }
 
 }
@@ -69,40 +43,76 @@ public class GroundedState : PlayerState
         {
             thisObj.yInput = 0.0f;
         }
+        thisObj.controller.MoveGround();
+
+        if (thisObj.controller.yVelocity != 0.0f)
+        {
+            Debug.Log("Swapped from Grounded to Airborne");
+            thisObj.currentState = new AirborneState();
+        }
 
     }
     public override void report(Player thisObj)
     {
-        //Debug.Log("Idle");
+        Debug.Log("Grounded");
+    }
+}
+
+public class AirborneState : PlayerState
+{
+    public override void handleInput(Player thisObj)
+    {
+        if (Input.GetKey(KeyCode.D))
+        {
+            thisObj.xInput = 1.0f;
+
+            if (Input.GetKey(KeyCode.A))
+            {
+                thisObj.xInput = 0.0f;
+            }
+        }
+
+        else if (Input.GetKey(KeyCode.A))
+        {
+            thisObj.xInput = -1.0f;
+        }
+
+        else
+        {
+            thisObj.xInput = 0.0f;
+        }
+
+        if (thisObj.controller.isGrounded)
+        {
+            Debug.Log("Swapped from Airborne to Grounded");
+            thisObj.currentState = new GroundedState();
+        }
+
+        thisObj.controller.MoveAir();
+    }
+
+    public override void report(Player thisObj)
+    {
+        Debug.Log("Airborne");
     }
 }
 
 
+
 public class Player : MonoBehaviour
 {
-    private PlayerState currentState;
+    [HideInInspector] public PlayerState currentState;
+    [HideInInspector] public PlayerController controller;
     [HideInInspector] public Rigidbody2D rb;
     [HideInInspector] public BoxCollider2D collider;
-    [HideInInspector] public float xVelocity;
-    [HideInInspector] public float yVelocity;
     [HideInInspector] public float xInput;
     [HideInInspector] public float yInput;
-    [HideInInspector] public bool isGrounded;
-    [HideInInspector] public Vector2 velocityRef;
-    public float acceleration;
-    public float jumpHeight;
-    public float maxSpeed;
-    public float jumpMaxSpeed;
-    public float groundDrag;
-    public float airDrag;
-    public float gravity;
 
     private void Awake()
     {
+        controller = GetComponent<PlayerController>();
         rb = GetComponent<Rigidbody2D>();
         collider = GetComponent<BoxCollider2D>();
-        xVelocity = 0.0f;
-        yVelocity = 0.0f;
     }
 
     // Start is called before the first frame update
@@ -121,15 +131,5 @@ public class Player : MonoBehaviour
     void Update()
     {
         currentState.handleInput(this);
-        currentState.calculateMovement(this);
-
-        if(Physics2D.BoxCast(transform.position,collider.size,0.0f,Vector2.down,0.1f, 0))
-        {
-            isGrounded = true;
-        }
-        else
-        {
-            isGrounded = false;
-        }
     }
 }

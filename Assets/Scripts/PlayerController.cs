@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
         yVelocity = Mathf.Clamp(thisObj.rb.velocity.y, -jumpMaxSpeed, jumpMaxSpeed);
 
         Vector2 newVelocity = new Vector2(xVelocity, yVelocity);
-        thisObj.rb.velocity = newVelocity;
+        thisObj.rb.velocity = Vector2.SmoothDamp(thisObj.rb.velocity, newVelocity, ref velocityRef, Time.deltaTime);
     }
 
     public void MoveAir()
@@ -78,7 +78,48 @@ public class PlayerController : MonoBehaviour
         }
         yVelocity = Mathf.Clamp(thisObj.rb.velocity.y, -jumpMaxSpeed, jumpMaxSpeed);
         Vector2 newVelocity = new Vector2(xVelocity, yVelocity);
-        thisObj.rb.velocity = newVelocity;
+        thisObj.rb.velocity = Vector2.SmoothDamp(thisObj.rb.velocity, newVelocity, ref velocityRef, Time.deltaTime);
+    }
+
+    public void EnableGravity()
+    {
+        EnableGravity(GetComponent<Player>());
+    }
+
+    public void EnableGravity(float gravityChange)
+    {
+        EnableGravity(GetComponent<Player>(),gravityChange);
+    }
+
+    public void EnableGravity(Player thisObj)
+    {
+        thisObj.rb.gravityScale = gravity;
+    }
+
+    public void EnableGravity(Player thisObj, float gravityChange)
+    {
+        thisObj.rb.gravityScale = gravityChange;
+    }
+
+    public void DisableGravity()
+    {
+        DisableGravity(GetComponent<Player>());
+    }
+
+    public void DisableGravity(Player thisObj)
+    {
+        thisObj.rb.gravityScale = 0;
+    }
+
+    public void LinearMovement(float x, float y)
+    {
+        LinearMovement(x, y, GetComponent<Player>());
+    }
+
+    public void LinearMovement(float x, float y, Player thisObj)
+    {
+        Vector2 newVelocity = new Vector2(x, y);
+        thisObj.rb.velocity = thisObj.rb.velocity = Vector2.SmoothDamp(thisObj.rb.velocity, newVelocity, ref velocityRef, Time.deltaTime);
     }
 
     private void GroundedCheck()

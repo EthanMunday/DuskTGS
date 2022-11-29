@@ -124,7 +124,7 @@ public class PlayerController : MonoBehaviour
 
     private void GroundedCheck()
     {
-        RaycastHit2D cast = Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0f, Vector2.down * 0.1f, 0.05f, groundMask);
+        RaycastHit2D cast = Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0f, Vector2.down * 0.1f, 0.1f, groundMask);
         isGrounded = (cast.collider != null);
     }
 

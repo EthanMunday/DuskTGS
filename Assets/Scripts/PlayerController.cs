@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
 
         if (isGrounded && thisObj.yInput == 1.0f)
         {
+            Debug.Log("Jump");
             Jump();
         }
 
@@ -135,6 +136,11 @@ public class PlayerController : MonoBehaviour
     }
     public void Jump(float jumpMultiplier, Player thisObj)
     {
+        if (thisObj.currentState.ToString() == "GroundedState" || thisObj.currentState.ToString() == "LandingState")
+        {
+            thisObj.currentJumpCount = thisObj.jumpCount;
+        }
+
         if (thisObj.currentJumpCount > 0)
         {
             thisObj.rb.velocity = (new Vector2(thisObj.rb.velocity.x, jumpHeight * jumpMultiplier));
@@ -144,7 +150,7 @@ public class PlayerController : MonoBehaviour
     // Dash
     public void Dash()
     {
-        Dash(0.6f, 0.6f, GetComponent<Player>());
+        Dash(0.6f, 0.2f, GetComponent<Player>());
     }
     public void Dash(float xScale, float yScale)
     {
@@ -201,12 +207,7 @@ public class PlayerController : MonoBehaviour
     // Automatically Step Over Walls
     public void AutoStep(Player thisObj, Collision2D collision)
     {
-        float x = thisObj.transform.position.y - thisObj.collider.bounds.size.y / 2;
-        float y = collision.transform.position.y + collision.collider.bounds.size.y / 2;
-        if (y - x < 2.0f)
-        {
-            thisObj.rb.MovePosition(new Vector2(thisObj.rb.position.x, thisObj.rb.position.y + (y - x) + 0.1f));
-        }
+        AutoStep(thisObj, collision, 2.0f);
     }
     public void AutoStep(Player thisObj, Collision2D collision, float sizeDifference)
     {
@@ -215,6 +216,7 @@ public class PlayerController : MonoBehaviour
         if (y - x < sizeDifference)
         {
             thisObj.rb.MovePosition(new Vector2(thisObj.rb.position.x, thisObj.rb.position.y + (y - x) + 0.1f));
+            thisObj.rb.velocity = new Vector2(-thisObj.wallDirection.x * maxSpeed, 0f);
         }
     }
     // Check if a layer is "Ground"

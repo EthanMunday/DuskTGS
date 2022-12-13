@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Rendering;
 
 public class PlayerState
@@ -150,11 +151,10 @@ public class LandingState : GroundedState
 public class AirborneState : PlayerState
 {
     bool isOnFloor = false;
-    float launchInput = 0.0f;
 
     public override void caclulateMovement(Player thisObj)
     {
-        if (thisObj.isTouchingWall && thisObj.jumpPressed && thisObj.currentWallClimbCount > 0)
+        if (thisObj.isTouchingWall && thisObj.yInput == 1.0f && thisObj.currentWallClimbCount > 0)
         {
             Debug.Log("Swapped from Airborne to Climbing");
             thisObj.currentWallClimbCount -= 1;
@@ -235,8 +235,11 @@ public class ClimbingState : PlayerState
 
         if (!thisObj.isTouchingWall)
         {
-            thisObj.rb.velocity = new Vector2(-thisObj.wallDirection.x * 80, 10f);
-            thisObj.currentState = new AirborneState();
+            Debug.Log("Swapped from Climbing to Mantle");
+            thisObj.currentJumpCount = thisObj.jumpCount;
+            thisObj.currentDashCount = thisObj.dashCount;
+            thisObj.currentWallClimbCount = thisObj.wallClimbCount;
+            thisObj.currentState = new MantleState();
         }
 
         if (thisObj.currentState.ToString() == "ClimbingState")
@@ -269,8 +272,8 @@ public class ClimbingState : PlayerState
 
     public ClimbingState()
     {
-        flyTimer = 0.3f;
-        direction = new Vector2(0.0f,30.0f);
+        flyTimer = 0.6f;
+        direction = new Vector2(0.0f,15.0f);
     }
     public ClimbingState(float inputTimer)
     {
@@ -284,6 +287,27 @@ public class ClimbingState : PlayerState
     }
 }
 
+public class MantleState : PlayerState
+{
+    float mantleTime = 0.05f;
+    public override void caclulateMovement(Player thisObj)
+    {
+        mantleTime -= Time.deltaTime;
+        if (mantleTime > 0)
+        {
+            thisObj.controller.LinearMovement(0.0f, 10.0f);
+            return;
+        }
+        Debug.Log("Swapped from Mantle to Airborne");
+        thisObj.rb.velocity = new Vector2(-thisObj.wallDirection.x * 80, 0f);
+        thisObj.currentState = new AirborneState();
+    }
+
+    public override void report(Player thisObj)
+    {
+        Debug.Log("Mantle");
+    }
+}
 
 
 public class Player : MonoBehaviour
@@ -316,11 +340,11 @@ public class Player : MonoBehaviour
         controller = GetComponent<PlayerController>();
         rb = GetComponent<Rigidbody2D>();
         collider = GetComponent<BoxCollider2D>();
-        jumpCount = 1;
+        jumpCount = 0;
         currentJumpCount = jumpCount;
-        dashCount = 1;
+        dashCount = 0;
         currentDashCount = dashCount;
-        wallClimbCount = 1;
+        wallClimbCount = 0;
         currentWallClimbCount = wallClimbCount;
     }
 
@@ -339,6 +363,15 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(0);
+        }
         currentState.handleInput(this);
         currentState.caclulateMovement(this);
     }
@@ -353,5 +386,68 @@ public class Player : MonoBehaviour
         currentState.exitHit(this, collision);
     }
 
+    public void AddSpeed(float addedSpeed)
+    {
+        controller.acceleration += addedSpeed / 20;
+        controller.maxSpeed += addedSpeed;
+        controller.jumpMaxSpeed += addedSpeed;
+    }
+    public void MinusSpeed(float addedSpeed)
+    {
+        controller.acceleration -= addedSpeed / 20;
+        controller.maxSpeed -= addedSpeed;
+        controller.jumpMaxSpeed -= addedSpeed;
+    }
+
+    public void AddJumps()
+    {
+        jumpCount++;
+    }
+    public void AddJumps(int addedJumps)
+    {
+        jumpCount += addedJumps;
+    }
+    public void MinusJumps()
+    {
+        jumpCount--;
+    }
+    public void MinusJumps(int minusJumps)
+    {
+        jumpCount -= minusJumps;
+    }
+
+    public void AddWallClimbs()
+    {
+        wallClimbCount++;
+    }
+    public void AddWallClimbs(int addedWallClimbs)
+    {
+        wallClimbCount += addedWallClimbs;
+    }
+    public void MinusWallClimbs()
+    {
+        wallClimbCount--;
+    }
+    public void MinusWallClimbs(int minusWallClimbs)
+    {
+        wallClimbCount -= minusWallClimbs;
+    }
+
+    public void AddDashes()
+    {
+        dashCount++;
+    }
+    public void AddDashes(int addedDashes)
+    {
+        dashCount += addedDashes;
+    }
+    public void MinusDashes()
+    {
+        dashCount--;
+    }
+    public void MinusDashes(int minusDashes)
+    {
+        dashCount -= minusDashes;
+    }
 }
 

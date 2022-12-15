@@ -212,7 +212,7 @@ public class AirborneState : PlayerState
     }
 }
 
-//Base Flying State
+
 public class ClimbingState : PlayerState
 {
     float flyTimer;
@@ -314,9 +314,9 @@ public class Player : MonoBehaviour
 {
     //Components
     [HideInInspector] public PlayerState currentState;
-    [HideInInspector] public PlayerController controller;
     [HideInInspector] public Rigidbody2D rb;
     [HideInInspector] public BoxCollider2D collider;
+    [HideInInspector] public PlayerController controller;
 
     //Details
     [HideInInspector] public float xInput;

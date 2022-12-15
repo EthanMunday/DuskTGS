@@ -60,16 +60,6 @@ public class CameraScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            AdvancePostion();
-        }
-
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            RetreatPosition();
-        }
-
         if (moveTimer > 0.0f)
         {
             moveTimer -= Time.deltaTime;
